@@ -9,12 +9,13 @@
 		<meta name="keywords" content="Zappos, Application, Shoes, Clothing" />
 		<meta name="author" content="Sarim" />
 		<link rel="shortcut icon" href="../favicon.ico">
-		<link rel="stylesheet" type="text/css" href="css/default.css" />
-		<link rel="stylesheet" type="text/css" href="css/component.css" />
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-sanitize.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 		<script src="js/modernizr.custom.js"></script>
 		<script type="text/javascript" src="tinybox.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
 		
 		<script>
@@ -29,14 +30,14 @@
 			// my function to populate the product details
 
 			function AngularController($scope, $http) {
-
-				
 				$scope.searchItem = null;
-
-				
+				$scope.totalcost = 0;
+				$scope.numofitems = 0;
 				$scope.listOfProducts = null;
 
 				$scope.loadproductdetails = function() {
+					$scope.numofitems = 0;
+					$scope.totalcost = 0;
 					var jsobj = []; //temp var to store api's result
 					var cartjson = []; //all products in cart will be populated here.
 					cartjson = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
@@ -48,46 +49,89 @@
 							//add the returned details in the necessary form
 							for(var i=0;i<obj.length;i++) {
 								var style = obj[i].styles;
-									var new_obj = {"pid":obj[i].productId, "name":obj[i].productName, "image":obj[i].defaultImageUrl,"price":style[0].price,};
+									var new_obj = {"pid":obj[i].productId, "name":obj[i].productName, "image":obj[i].defaultImageUrl,"price":style[0].price};
+									var price = parseFloat(style[0].price.replace(/\$/, ""));
+									$scope.totalcost = parseFloat($scope.totalcost)+parseFloat (price);
+									$scope.numofitems++;
 									$scope.description = obj[i].description;
 									jsobj.push(new_obj);
 							}
 							//populate the list of products to be displayed
-							$scope.listOfProducts = jsobj;
+							
 						}).error(function(data, status, headers, config) {
 							$scope.errorMessage = "PID=" + pid;
 							//$scope.errorMessage = "No product matching this search found, error # " + status;
 							alert($scope.errorMessage);
 						});
 					}
+					$scope.listOfProducts = jsobj;
+				};
+				
+				$scope.removeitem = function(delpid) {
+					$scope.errorMessage = "Deleting PID="+delpid;
+					alert($scope.errorMessage);
+					
+					var cartnum = 0;
+					if (sessionStorage.getItem("cartnum") > 0) {;
+						cartnum = sessionStorage.getItem("cartnum");
+					}
+					cartnum--;
+					sessionStorage.setItem("cartnum",cartnum);
+					
+					var cartpids = []; //all products in cart will be populated here.
+					var newcartjson = [];
+					cartpids = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
+					for(var k = 0; k<cartpids.length; k++) {
+						if (cartpids[k].id != delpid) {
+							newcartjson.push(cartpids[k]);
+						}
+					}
+					sessionStorage.setItem("cartdb", JSON.stringify(newcartjson))
+					$scope.loadproductdetails();
+					//window.location = 'form.html?' + productId + ',' + styleId;
 				};
 			}
 		</script>
 	</head>
-	<body ng-controller="AngularController" id = "AngularController" ng-model="searchItem" ng-init="loadproductdetails()">
-	
+	<body ng-controller="AngularController" ng-init="loadproductdetails()">
+	<div width=100% style="background-color:lightgrey;">
+	<br><font size="4"><b>Your Cart!</b></font><br>
+	</div>
+	<br>
 	<div data-role="page">
-	<div id="cbp-pgcontainer">
+	<div class="container">
+	<div id="cbp-pgcontainer" class="cbp-pgcontainer">
+	<center>
+	<font size="4"><b>
+	<pre>Number of Items: {{numofitems}}       </pre>
+	<pre>Total Cost: ${{totalcost}}       </pre>
+	</b>
+	</font>
+	</center>
 	<li ng-repeat='product in listOfProducts'>
-		<table>
-			<tr width="45%" height="15%">
-			<td width="15%" height="15%">
-				<img class="productpg" src={{product.image}}></img>
-			</td>
-			<td width="15%" height="15%">
-			<font size="6">{{product.name}}<font><font size="3"><br>by Savanna</font><br>
-			<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
-			</td>
-			<td>
-			<font size="4"><br>Price: {{product.price}}<br><br></font>
-			</td>
-			</tr>
-		</table>
+	<table>
+		<tr height="40%">
+		<td width="15%" height="20%"><img width="100%" max-height="100%" src={{product.image}}></img>
+		</td>
+		<td width="50%" height="20%">
+		<font size="4">{{product.name}}<font><font size="3"><br>by Savanna</font><br>
+		<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
+		</td>
+		<td>
+		<a href="" ng-click="removeitem(product.pid)"> delete item</a>
+		</td>
+		<td>
+		<font size="5%"><br>Price: {{product.price}}<br><br></font>
+		</td>
+		</tr>
+	</table>
 	</li>
-	</div>
-	</div>
 	<script src="js/cbpShop.min.js"></script>
 		<script>
 			var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
 		</script>
+	</ul>
+	</div>
+	</div>
+	</div>
 </body>
