@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" ng-app="myApp">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Savanna|HCI</title>
+		<meta name="description" content="Human computer interaction" />
+		<meta name="keywords" content="HCI, Application, Shoes, Clothing" />
+		<meta name="author" content="Sarim" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<!--
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+		<link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+		-->
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+		<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.4.0.js"></script>
+		
+		<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+		<script src="js/modernizr.custom.js"></script>
+		<script type="text/javascript" src="tinybox.js"></script>
+		<script>
+			if (sessionStorage.getItem("alreadyvisited") != "1") {
+				var shippingadd = [{"address1":"2341 SW 35 BLVD", "address2":"Campus Apartments", "city":"Gainesville", "state":"FL", "zip":"32542"},];
+				sessionStorage.setItem("shippingaddress", JSON.stringify(shippingadd));
+				var billingadd = [{"address1":"5423 SW 45 BLVD", "address2":"Gainesville Apartments", "city":"Gainesville", "state":"FL", "zip":"32505"},];
+				sessionStorage.setItem("billingaddress", JSON.stringify(billingadd));
+				sessionStorage.setItem("alreadyvisited", "1");
+			}
+			var myApp = angular.module('myApp', []);
+			myApp.config(['$httpProvider',
+			function($httpProvider) {
+
+				$httpProvider.defaults.useXDomain = true;
+				delete $httpProvider.defaults.headers.common['X-Requested-With'];
+			}]);
+			function AngularController($scope, $http) {
+				$scope.sadd1 = null;
+				$scope.sshow = true;
+				$scope.bshow = true;
+				$scope.sedit = false;
+				$scope.bedit = false;
+				$scope.saveshow = false;
+				$scope.editship = true;
+				$scope.editbill = true;
+				$scope.allbill = true;
+				$scope.allship = true;
+				$scope.changesshow = false;
+				
+				//populate the shipping and billing address from the sessionstorage.
+				$scope.loadpage = function() {
+					var shipadd = JSON.parse(sessionStorage.getItem("shippingaddress"));
+					var billadd = JSON.parse(sessionStorage.getItem("billingaddress"));
+					
+					//ng-models of shipping address
+					$scope.sadd1 = shipadd[0].address1;
+					$scope.sadd2 = shipadd[0].address2;
+					$scope.scity = shipadd[0].city;
+					$scope.sstate = shipadd[0].state;
+					$scope.szip = shipadd[0].zip;
+					
+					//ng-models of billing address
+					$scope.badd1 = billadd[0].address1;
+					$scope.badd2 = billadd[0].address2;
+					$scope.bcity = billadd[0].city;
+					$scope.bstate = billadd[0].state;
+					$scope.bzip = billadd[0].zip;
+				};
+				
+				//save the addresses
+				$scope.savevalues = function() {
+					var shipadd = [];
+					shipadd.push({"address1":$scope.sadd1, "address2":$scope.sadd2, "city":$scope.scity, "state":$scope.sstate, "zip":$scope.szip,}); 
+					var billadd = [];
+					billadd.push({"address1":$scope.badd1, "address2":$scope.badd2, "city":$scope.bcity, "state":$scope.bstate, "zip":$scope.bzip});
+					sessionStorage.setItem("shippingaddress", JSON.stringify(shipadd));
+					sessionStorage.setItem("billingaddress", JSON.stringify(billadd));
+					$scope.sshow = true;
+					$scope.sedit = false;
+					$scope.saveshow = false;
+					$scope.editship = true;
+					$scope.editbill = true;
+					$scope.bshow = true;
+					$scope.allship = true;
+					$scope.allbill = true;
+					$scope.bedit = false;
+					$scope.saveshow = false;
+					$scope.changesshow = true;
+					//alert("Changes Saved!");
+				};
+				
+				//actions to be performed when edit button is pressed
+				$scope.edit = function(type) {
+					if (type == "ship") { //for editing shipping address
+						$scope.sshow = false;
+						$scope.sedit = true;
+						$scope.allbill = false;
+						$scope.editship = false;
+						$scope.saveshow = true;
+						$scope.allbill = false;
+						$scope.changesshow = false;
+					}
+					else if (type == "bill") { //for editing billing address
+						$scope.allship = false;
+						$scope.bshow = false;
+						$scope.bedit = true;
+						$scope.editbill = false;
+						$scope.saveshow = true;
+						$scope.changesshow = false;
+					}
+				};
+			}
+		</script>
+</head>
+<body ng-controller="AngularController" ng-init="loadpage()">
+<div data-role="page">
+	<div class="container" >
+X close
+<pre>
+   You have logged in as Guest!
+
+<span ng-show="allship">
+   <font size="4"><b>Shipping Address:</b></font>     <input type="button" style="height:10%;width=5%" ng-click="edit('ship')" value="Edit this address" ng-show="editship">
+<span ng-show="sshow">
+	{{sadd1}}
+	{{sadd2}}
+	{{scity}}
+	{{sstate}} - {{szip}}
+</span>
+<table ng-show="sedit">
+	<tr><td>Address Line 1:</td><td><input type="textbox" ng-model="sadd1" value=""></td></tr>
+	<tr><td>Address Line 2:</td><td><input type="textbox" ng-model="sadd2" value=""></td></tr>
+	<tr><td>City : </td><td><input type="textbox"  ng-model="scity" value=""></td></tr>
+	<tr><td>State : </td><td><input type="textbox"  ng-model="sstate" value=""></td></tr><tr><td>Zipcode</td><td><input type="textbox"  ng-model="szip" value=""></td></tr>
+</table>
+
+</span>
+<span ng-show="allbill">
+   <font size="4"><b>Billing Address:</b></font>     <input type="button" style="height:10%;width=5%" ng-click="edit('bill')" value="Edit this address" ng-show="editbill">
+<pre ng-show="bshow">
+	{{badd1}}
+	{{badd2}}
+	{{bcity}}
+	{{bstate}} - {{bzip}}
+	
+	
+<font color="green" ng-show="changesshow">    Changes saved successfully!</font>
+</pre>
+<table ng-show="bedit">
+	<tr><td>Address Line 1:</td><td><input type="textbox"  ng-model="badd1" value=""></td></tr>
+	<tr><td>Address Line 2:</td><td><input type="textbox"  ng-model="badd2" value=""></td></tr>
+	<tr><td>City : </td><td><input type="textbox"  ng-model="bcity" value=""></td></tr>
+	<tr><td>State : </td><td><input type="textbox"  ng-model="bstate" value=""></td></tr>
+	<tr><td>Zipcode</td><td><input type="textbox"  ng-model="bzip" value=""></td></tr>
+</table>
+</span>
+<input type="button" style="height:10%;width=5%" ng-click="savevalues()" value="Save" ng-show="saveshow">
+</div></div>
+</body>
+</html>

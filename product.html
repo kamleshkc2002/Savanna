@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" ng-app="myApp">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Zappos|Shoes, Clothing Online</title>
+		<meta name="description" content="Zappos Application for Discount Notification" />
+		<meta name="keywords" content="Zappos, Application, Shoes, Clothing" />
+		<meta name="author" content="Sarim" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+		<script src="js/modernizr.custom.js"></script>
+		<script type="text/javascript" src="tinybox.js"></script>
+		<!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
+	</head>
+	<body >
+	
+		<div data-role="page">
+			<div class="container" >
+				<header class="clearfix">
+						<div  id="searchdiv" >
+
+							<input id="searchbox" ng-model="searchItem" ng-change="loadProducts()" placeholder="WHAT AM I HERE FOR?" />
+								<span class="bp-icon bp-icon-about" data-content="Hola! so now that we have managed to pull you back to our online store, just start entering what you want to search for in this search box."></span>
+					</span>
+					<p style="margin-left: 25%;">
+
+					</p>
+
+			</div>
+		</div>
+		</div>
+			</header>
+		<div>
+			<ul class="pro">
+			<li class="pro" onclick="TINY.box.show({iframe:'file:///D:/UFL/spring14/HCI/zappos-master/zappos-master/popup.html',boxid:'frameless',width:750,height:450,fixed:false,maskid:'blackmask',maskopacity:40,closejs:function(){closeJS()}})">Click here...</li>
+			</ul>
+		</div>
+		<script src="js/cbpShop.min.js"></script>
+		<script>
+			var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
+		</script>
+	</body>
+</html>

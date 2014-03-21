@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" ng-app="myApp">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Savanna|Shoes, Clothing Online</title>
+		<meta name="description" content="Human computer interaction" />
+		<meta name="keywords" content="HCI, Application, Shoes, Clothing" />
+		<meta name="author" content="Sarim" />
+		<link rel="shortcut icon" href="../favicon.ico">
+
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+		<link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+		<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.4.0.js"></script>
+		
+		<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+		<script src="js/modernizr.custom.js"></script>
+		<script type="text/javascript" src="tinybox.js"></script>
+
+		<!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
+		<script>
+			var myApp = angular.module('myApp', []);
+			myApp.config(['$httpProvider',
+			function($httpProvider) {
+
+				$httpProvider.defaults.useXDomain = true;
+				delete $httpProvider.defaults.headers.common['X-Requested-With'];
+			}]);
+
+			// my function to populate the product details
+
+			//angular.js
+
+			function AngularController($scope, $http) {
+				$scope.searchItem = null;
+				$scope.listOfProducts = null;
+				$scope.category=null;
+				$scope.pid=null;
+				$scope.autocompletelist = null;
+				
+				$scope.textboxchanged = function(nextaction) {
+					$scope.category = null;
+					$scope.pid = null;
+					$scope.loadProducts("catlist","-1");
+				}
+
+				$scope.loadProducts = function(nextaction,pid) {
+					if (nextaction == "catlist") {
+						$http.jsonp('http://api.zappos.com/Search/term/' + $scope.searchItem + '?callback=JSON_CALLBACK&includes=["categoryFacet"]'+ $scope.temp + '&limit=1000&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78'
+						).success(function(data) {					
+							var txt = data;
+							var listP = txt.results;						
+							var jsobj = [];
+							var x = 1;
+							
+							for(var i=0;i<listP.length;i++)
+							{
+								var isexists = 0;
+								var catobj;
+								for(var j=0;j<jsobj.length;j++) {
+									if (jsobj[j].category == listP[i].categoryFacet) {
+										isexists = 1;
+										jsobj[j].count++;
+									}
+								}
+								if (isexists == 0) {
+									var new_obj = {"category":listP[i].categoryFacet, "image":listP[i].thumbnailImageUrl, "count":"1", "nextaction":"prodlist", "pid":"-1"};
+									jsobj.push(new_obj);
+								}
+							}
+							
+							$scope.listOfProducts = jsobj;
+							console.log($scope.listOfProducts);
+							}).error(function(data, status, headers, config) {
+								$scope.errorMessage = "No product matching this search found, error # " + status;
+
+						});
+					}
+					if (nextaction == "prodlist") {
+						$http.jsonp('http://api.zappos.com/Search/term/'+$scope.searchItem+'?callback=JSON_CALLBACK&limit=30&includes=["categoryFacet"]&filters={"categoryFacet":["'+$scope.category+'"]}&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78').success(function(data) {
+							var txt = data;
+							var obj = eval(txt);
+
+							for (var i=0;i<obj.results.length;i++) {
+								obj.results[i].pricevalue = parseInt(obj.results[i].price.replace(/\$/, ""));
+							}
+							var jsobj = [];
+							var x = 1;
+							for(var i=0;i<obj.results.length;i++)
+							{
+									var new_obj = {"category":obj.results[i].productName, "image":obj.results[i].thumbnailImageUrl, "count":obj.results[i].price, "nextcall":"showprod("+obj.results[i].productId+")"};
+									jsobj.push(new_obj);
+							}
+							$scope.listOfProducts = jsobj;
+						}).error(function(data, status, headers, config) {
+						$scope.errorMessage = "No product matching this search found, error # " + status;
+
+						alert($scope.errorMessage);
+					});
+					}
+					if (nextaction == "showprod") {
+						TINY.box.show({iframe:'file:///D:/UFL/spring14/HCI/proj2/zappos-master/zappos-master/popup.html?'+pid,boxid:'frameless',width:750,height:450,fixed:false,maskid:'blackmask',maskopacity:40,closejs:function(){closeJS()}});
+					}
+
+				};
+
+				//watch for change in ng-model=searchItem, and change ng-model=selected
+
+				$scope.$watch('searchItem', function(v) {
+					$scope.selected = v;
+				});
+
+				$scope.gotoproduct = function(categoryname,pid) {
+					if (pid == -1) {
+						$scope.category = categoryname;
+						$scope.loadProducts("prodlist",pid);
+					}
+					else {
+						$scope.pid = pid;
+						$scope.loadProducts("showprod",pid);
+					}
+					//$scope.categorysel = categoryname;
+					// get search results
+					/*$http.jsonp('http://api.zappos.com/Search/term/'+$scope.searchItem+'?callback=JSON_CALLBACK&limit=30&includes=["categoryFacet"]&filters={"categoryFacet":["'+categoryname+'"]}&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78').success(function(data) {
+				//	$http.jsonp('http://api.zappos.com/Search?callback=JSON_CALLBACK&term=' + $scope.searchItem + '&key=b05dcd698e5ca2eab4a0cd1eee4117e7db2a10c4').success(function(data) {
+
+						var txt = data;
+						var obj = eval(txt);
+
+						for (var i=0;i<obj.results.length;i++) {
+							obj.results[i].pricevalue = parseInt(obj.results[i].price.replace(/\$/, ""));
+						}
+						
+						var jsobj = [];
+						
+						var x = 1;
+						for(var i=0;i<obj.results.length;i++)
+						{
+								var new_obj = {"category":obj.results[i].productName, "image":obj.results[i].thumbnailImageUrl, "count":obj.results[i].price, "nextcall":"showprod("+obj.results[i].productId+")"};
+								jsobj.push(new_obj);
+						}
+						
+						$scope.listOfProducts = jsobj;
+
+						//loadProducts();
+						// alert($scope.listOfProducts);
+					}).error(function(data, status, headers, config) {
+						$scope.errorMessage = "No product matching this search found, error # " + status;
+
+						alert($scope.errorMessage);
+					});
+					*/
+					//window.location = 'products.html?' + $scope.searchItem + ',' + categoryname;
+
+				};
+
+			}
+			/*
+			function TypeaheadCtrl($scope) {
+			
+								$scope.selected = undefined;
+								$scope.autoc = $scope.autocompletelist;
+							}*/
+			
+
+			/*
+			var availableTags = ["ActionScript", "AppleScript", "Asp", "BASIC", "C", "C++", "Clojure", "COBOL", "ColdFusion", "Erlang", "Fortran", "Groovy", "Haskell", "Java", "JavaScript", "Lisp", "Perl", "PHP", "Python", "Ruby", "Scala", "Scheme"];
+			
+						$("#searchbox").autocomplete({
+							source : availableTags
+						});*/
+			
+
+		</script>
+
+	</head>
+	<body ng-controller="AngularController">
+		<div data-role="page">
+			<div class="container" >
+				<header class="clearfix">
+					<span>
+						<div  id="searchdiv" >
+							SAVANNA
+							<input id="searchbox" ng-model="searchItem" ng-change="textboxchanged()" placeholder="WHAT AM I HERE FOR?" />
+							<span class="bp-icon bp-icon-about" data-content="Hola! so now that we have managed to pull you back to our online store, just start entering what you want to search for in this search box."></span>
+							<font size="3px">
+								<a href="account.html"> My Account</a>
+								<a href="deals.html"> Deals(2)</a>
+							</font>
+					</span>
+					<p style="margin-left: 10%;">
+
+					</p>
+
+			</div>
+
+			</header>
+
+			<div id="cbp-pgcontainer" class="cbp-pgcontainer">
+
+
+
+<!--<p>list of product categories:</p>-->
+				<ul class="cbp-pggrid">
+					<li ng-repeat='product in listOfProducts' ng-click="gotoproduct(product.category,product.pid)">
+						<div class="cbp-pgcontent">
+							<div class="cbp-pgitem">
+								<div class="cbp-pgitem-flip">
+									<img src={{product.image}} /><!--add image here-->
+								</div>
+							</div><!-- /cbp-pgitem -->
+						</div><!-- cbp-pgcontent -->
+						<div class="cbp-pginfo">
+							<h3>{{product.category}}</h3><!--product name-->
+							<!--<h3>{{product.brandName}}</h3><!--brandname->-->
+							<span class="cbp-pgprice">{{product.count}}
+								{{product.categoryFacet}}</span><!--product price-->
+						</div>
+					</li>
+
+				</ul><!-- /cbp-pggrid -->
+			</div><!-- /cbp-pgcontainer -->
+
+		</div><!-- /content -->
+
+		</div><!---page ends-->
+
+		<script src="js/cbpShop.min.js"></script>
+		<script>
+			var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
+		</script>
+	</body>
+</html>
