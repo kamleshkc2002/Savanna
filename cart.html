@@ -37,7 +37,7 @@
 
 				$scope.loadproductdetails = function() {
 					$scope.numofitems = 0;
-					$scope.totalcost = 0;
+					$scope.totalcost = 0.00;
 					var jsobj = []; //temp var to store api's result
 					var cartjson = []; //all products in cart will be populated here.
 					cartjson = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
@@ -51,7 +51,7 @@
 								var style = obj[i].styles;
 									var new_obj = {"pid":obj[i].productId, "name":obj[i].productName, "image":obj[i].defaultImageUrl,"price":style[0].price};
 									var price = parseFloat(style[0].price.replace(/\$/, ""));
-									$scope.totalcost = parseFloat($scope.totalcost)+parseFloat (price);
+									$scope.totalcost = parseFloat($scope.totalcost)+parseFloat(price);
 									$scope.numofitems++;
 									$scope.description = obj[i].description;
 									jsobj.push(new_obj);
@@ -65,12 +65,10 @@
 						});
 					}
 					$scope.listOfProducts = jsobj;
+					
 				};
 				
 				$scope.removeitem = function(delpid) {
-					$scope.errorMessage = "Deleting PID="+delpid;
-					alert($scope.errorMessage);
-					
 					var cartnum = 0;
 					if (sessionStorage.getItem("cartnum") > 0) {;
 						cartnum = sessionStorage.getItem("cartnum");
@@ -88,7 +86,6 @@
 					}
 					sessionStorage.setItem("cartdb", JSON.stringify(newcartjson))
 					$scope.loadproductdetails();
-					//window.location = 'form.html?' + productId + ',' + styleId;
 				};
 			}
 		</script>
@@ -114,7 +111,7 @@
 		<td width="15%" height="20%"><img width="100%" max-height="100%" src={{product.image}}></img>
 		</td>
 		<td width="50%" height="20%">
-		<font size="4">{{product.name}}<font><font size="3"><br>by Savanna</font><br>
+		<font size="4">{{product.name}}<font><font size="3"><br>by Zappos</font><br>
 		<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
 		</td>
 		<td>
