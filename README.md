@@ -1,16 +1,15 @@
-CAP 5100 Human Computer Interaction
-======
+                                        CAP 5100 Human Computer Interaction
+                                      =======================================
 
 ##This is the project description
 
-####This project is a coding challenge for zappos.com
+####This project is for the partial completion of course work for CAP 5100 SP2014
 
-####This is a responsive web application optimised for mobile.
 
 ####It uses zappos API to make RESTful calls and get product details from zappos servers. It uses angular.js for the front-end interface, node.js for the server and mongodb for storing data. 
 
-####you can search for a product using the interface and favorite an item by clicking on the heart button below the product, or buy it by clicking on the cart button(basically you are redirected to zappos.com for that product ;)).
-####once you favorite an item, you will be prompted to enter your name and email id, so that zappos can send you notifications when this item goes on sale(more than 20%).
+####you can search for a product using the interface and add it cart and checkout details.
+
 
 Architecture
 --------------
@@ -19,9 +18,7 @@ Architecture
 
 ##Configuration instruction
 
-###The interface can be found at---> [My Website](http://www.sarimzaidi.com/projects/zappos) ,here you can search for any product using the search box, sometimes the zappos api key gets *throttled* and you dont get any results, so beware of that.
 
->you can also change the key on `line 41` in `index.html` and `line 119` in `web-server.js` to some other non-throttling key ;)
 
 ###once you favorite an item by clicking on the heart button, you will be prompted to enter your name and email, which will be used to send you notifications.
 
@@ -42,7 +39,7 @@ Architecture
 
 `line 204` sets the from field of the email, set it up
 
->Thats it, you are done, go on and play with my app, and let me know if you find any bug, or you have any suggestions to improve the app(i know you have;))
+
 
 
 
