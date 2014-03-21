@@ -154,7 +154,7 @@
 				};
 				
 				$scope.showprod = function(pid) {
-					TINY.box.show({iframe:'popup.html?'+pid,boxid:'frameless',width:750,height:450,fixed:false,maskid:'blackmask',maskopacity:40,closejs:function(){closeJS()}});
+					TINY.box.show({iframe:'popup.html?'+pid,boxid:'frameless',width:750,height:450,fixed:true,maskid:'blackmask',maskopacity:40,closejs:function(){closeJS()}});
 					//window.location = 'popup.html?' + pid;
 				};
 				
@@ -192,7 +192,7 @@
 							boxid : 'frameless',
 							width : 750,
 							height : 450,
-							fixed : false,
+							fixed : true,
 							maskid : 'blackmask',
 							maskopacity : 40,
 							closejs : function() {
@@ -220,7 +220,7 @@
 					});
 				};
 				$scope.initialise = function(categoryname) {
-					$scope.dealscount = "("+50+")";
+					$scope.dealscount = " "+20+"\+ ";
 					if (sessionStorage.getItem("dealscount") > 0) {;
 						$scope.dealscount = "("+sessionStorage.getItem("dealscount")+")";
 					}
@@ -245,7 +245,7 @@
 					<a href="index.html"><font size="10"> Savanna</font></a></center>
 					<input style="margin-left: 20%;" id="searchbox" ng-model="searchItem" ng-change="loadCategory()" placeholder="WHAT AM I HERE FOR?" />
 				</td><td style="margin-right: 10px;">
-					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="" ng-click="showdeals()">  Deals{{dealscount}}  |</a><a href="" ng-click="showcart()">  Cart </a></pre></font>
+					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="" ng-click="showdeals()">  Deals<span id="notification">{{dealscount}}</span>  |</a><a href="" ng-click="showcart()">  Cart </a></pre></font>
 				</td></tr>
 			</table>
 		</div>

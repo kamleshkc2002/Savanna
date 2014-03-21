@@ -52,7 +52,8 @@
 
 				
 				$scope.searchItem = null;
-
+				$scope.addshow = true;
+				$scope.addedshow = false;
 				
 				$scope.listOfProducts = null;
 
@@ -86,6 +87,8 @@
 				
 				$scope.addtocart2 = function(pid) {
 					if(typeof(Storage) !== "undefined") {
+						$scope.addshow = false;
+						$scope.addedshow = true;
 						var cartjson = [];
 						var cartnum = 0;
 						if (sessionStorage.getItem("cartnum") > 0) {;
@@ -103,8 +106,8 @@
 						for (var i=0;i<cartjson.length; i++) {
 							$scope.errorMessage += "--ProductID="+cartjson[i].id;
 						}
-						$scope.errorMessage = "Product added to cart successfully!";
-						alert($scope.errorMessage);
+						//$scope.errorMessage = "Product added to cart successfully!";
+						//alert($scope.errorMessage);
 						//window.location = 'products.html?' + sessionStorage.productid;
 					}
 					else {
@@ -131,19 +134,24 @@
 		<td>
 		<font size="6">{{product.name}}<font><font size="3"><br>by Savanna</font><br>
 			<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
-		<font size="4"><br>Price: {{product.price}}<br><br></font>
-		<button ng-click="addtocart2(product.pid)">Add to cart</button>
+		<font size="4"><br>Price: {{product.price}}<br></font>
+		<button ng-show="addshow" ng-click="addtocart2(product.pid)" style="width: 80px;
+    height:25px;background: #f4f4f4;background: -webkit-linear-gradient(top, #f4f4f4 1%, #ededed 100%);">Add to cart</button>
+		<font size="4" color="green" ng-show="addedshow">Added to cart!</font>
 		</td>
 		</tr>
 	</table>
-	<pre><font size="4"><b>
+	<div max-width=50% style="margin-left:5%">
+	<font size="4"><b>
 	Description:</b></font><font size="3">
-		* Please note, the color and interior lining may differ from the color shown in the photo.
-		* Made in the U.S.A. and Imported.
-		* Product measurements were taken using size MD. Please note that measurements may vary by size.
-		* Returns accepted for 30 days from the ship date.
+	<div max-width=50% style="margin-left:5%">
+		<br>* Please note, the color and interior lining may differ from the color shown in the photo.
+		<br>* Made in the U.S.A. and Imported.
+		<br>* Product measurements were taken using size MD. Please note that measurements may vary by size.
+		<br>* Returns accepted for 30 days from the ship date.
 	</font>
-	</pre>
+	</div>
+	</div>
 	</li>
 	</div>
 	</div>
