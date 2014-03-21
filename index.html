@@ -112,7 +112,8 @@
 						console.log($scope.listOfProducts);
 					}).error(function(data, status, headers, config) {
 						$scope.errorMessage = "No product matching this search found, error # " + status;
-
+						$scope.listOfProducts = [];
+						//alert($scope.errorMessage);
 					});
 				};
 
@@ -164,23 +165,44 @@
 						}
 					});
 				};
+				
+				$scope.initialise = function(categoryname) {
+					$scope.dealscount = "("+50+")";
+					if (sessionStorage.getItem("dealscount") > 0) {;
+						$scope.dealscount = "("+sessionStorage.getItem("dealscount")+")";
+					}
+					else if (sessionStorage.getItem("dealscount") < 0) {
+						$scope.dealscount = null;
+					}
+					if ($scope.searchItem != null) {
+						$scope.loadProducts();
+					}
+					//sessionStorage.setItem("dealscount",dealscount);
+				};
+				$scope.showdeals = function(categoryname) {
+					$scope.dealscount = "";
+					sessionStorage.setItem("dealscount",-1);
+					window.location = 'deals.html';
+				};
 			}
 		</script>
 
 	</head>
-<body ng-controller="AngularController"  ng-model="searchItem" >
+<body ng-controller="AngularController"  ng-model="searchItem" ng-init="initialise()">
 
 <div width=100% height="100px" style="background-color:lightgrey;position:fixed;z-index:99999;">
 		<table width="100%"><tr><td width="80%" style="padding-right: 10px;">
 					<a href="index.html"><font size="10">Savanna</font></a></center>
-					<input style="margin-left: 20%;" id="searchbox" ng-show="searchbox1" autofocus="autofocus" ng-model="searchItem" ng-change="loadProducts()" placeholder="WHAT AM I HERE FOR?" />
+					<input style="margin-left: 10%;" id="searchbox" ng-show="searchbox1" autofocus="autofocus" ng-model="searchItem" ng-change="loadProducts()" placeholder="WHAT AM I HERE FOR?" />
 				</td><td style="margin-right: 10px;">
-					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="deals.html">  Deals  |</a><a href="" ng-click="showcart()">  Cart </a></pre></font>
+					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="" ng-click="showdeals()">  Deals{{dealscount}}  |</a><a href="" ng-click="showcart()">  Cart </a></pre></font>
 				</td></tr>
 			</table>
 </div>
 <pre ng-show="searchbox2"><br><br><br><br><br><br>
-<br><center>
+<br><center><br><br><br><br>
+Start your search...
+
 <input class="searchbox" autofocus="autofocus" ng-show="searchbox2" ng-model="searchItem" ng-change="loadProducts()" focus-on="searchItem" placeholder="WHAT AM I HERE FOR?" /></center>
 </pre>
 						
