@@ -1,4 +1,4 @@
-zappos
+CAP 5100 Human Computer Interaction
 ======
 
 ##This is the project description
