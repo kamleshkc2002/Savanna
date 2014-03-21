@@ -103,6 +103,7 @@
 						for (var i=0;i<cartjson.length; i++) {
 							$scope.errorMessage += "--ProductID="+cartjson[i].id;
 						}
+						$scope.errorMessage = "Product added to cart successfully!";
 						alert($scope.errorMessage);
 						//window.location = 'products.html?' + sessionStorage.productid;
 					}
@@ -128,8 +129,8 @@
 			<img class="productpg" src={{product.image}} height="50%" width="50%"></img>
 		</td>
 		<td>
-		<font size="6">{{product.name}}
-		<img src="images/4stars.jpg" height="30px" width="120px"><br><font size="2"><u>529 reviews</u></font>
+		<font size="6">{{product.name}}<font><font size="3"><br>by Savanna</font><br>
+			<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
 		<font size="4"><br>Price: {{product.price}}<br><br></font>
 		<button ng-click="addtocart2(product.pid)">Add to cart</button>
 		</td>

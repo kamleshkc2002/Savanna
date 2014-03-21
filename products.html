@@ -108,8 +108,8 @@
 						var colors = [];
 						
 						for (var i=0;i<obj.results.length;i++) {
-							obj.results[i].pricevalue = parseFloat(obj.results[i].price.replace(/\$/, ""));
-							
+							obj.results[i].pricevalue = parseInt(obj.results[i].price.replace(/\$/, ""));
+							obj.results[i].brandName = obj.results[i].brandName.slice(0, 10);
 							//to populate category list
 							var isexists = 0;
 							var catobj;
@@ -120,7 +120,7 @@
 								}
 							}
 							if (isexists == 0) {
-								var bname = obj.results[i].brandName.slice(0, 10)
+								var bname = obj.results[i].brandName.slice(0, 10);
 								//var new_obj = {"brandName":obj.results[i].brandName, "count":"1", "nextaction":"prodlist",};
 								var new_obj = {"brandName":bname, "count":"1", "nextaction":"prodlist",};
 								jsobj.push(new_obj);
@@ -155,7 +155,7 @@
 				};
 				
 				$scope.showprod = function(pid) {
-					TINY.box.show({iframe:'popup.html?'+pid,boxid:'frameless',width:750,height:450,fixed:true,maskid:'blackmask',maskopacity:40,closejs:function(){closeJS()}});
+					TINY.box.show({iframe:'popup.html?'+pid,boxid:'frameless',width:750,height:450,fixed:false,maskid:'blackmask',maskopacity:40,closejs:function(){closeJS()}});
 					//window.location = 'popup.html?' + pid;
 				};
 				
@@ -228,10 +228,10 @@
 <body ng-controller="AngularController" ng-model="searchItem" ng-init="loadProducts()">
 		<div width=100% height="100px" style="background-color:lightgrey;position: fixed;z-index:99999;">
 		<table width="100%"><tr><td width="80%">
-					<font size="10"> Savanna  .</font></center>
-					<input id="searchbox" ng-model="searchItem" ng-change="loadCategory()" placeholder="WHAT AM I HERE FOR?" />
-				</td><td>
-					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="deals.html">  Deals  |</a><a href="" ng-click="showcart()">  Cart  .</a></pre></font>
+					<a href="index.html"><font size="10"> Savanna</font></a></center>
+					<input style="margin-left: 20%;" id="searchbox" ng-model="searchItem" ng-change="loadCategory()" placeholder="WHAT AM I HERE FOR?" />
+				</td><td style="margin-right: 10px;">
+					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="deals.html">  Deals  |</a><a href="" ng-click="showcart()">  Cart  </a></pre></font>
 				</td></tr>
 			</table>
 		</div>
