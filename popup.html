@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" ng-app="myApp">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Savanna | HCI Project</title>
+		<meta name="description" content="Zappos Application for Discount Notification" />
+		<meta name="keywords" content="Zappos, Application, Shoes, Clothing" />
+		<meta name="author" content="Sarim" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.2/angular-sanitize.js"></script>
+		<script src="js/modernizr.custom.js"></script>
+		<script type="text/javascript" src="tinybox.js"></script>
+		<!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
+		
+		<script>
+			var query = window.location.search;
+			// Skip the leading ?, which should always be there,
+			// but be careful anyway
+			if (query.substring(0, 1) == '?') {
+				query = query.substring(1);
+			}
+			var data = query.split(',');
+
+			var pid = data[0];
+			
+			 angular.module('myApp', ['ngSanitize'])
+
+  .controller('ngBindHtmlCtrl', ['$scope', function ngBindHtmlCtrl($scope) {
+    $scope.myHTML =
+       'I am an <code>HTML</code>string with <a href="#">links!</a> and other <em>stuff</em>';
+  }]);
+			
+			var myApp = angular.module('myApp', []);
+			myApp.config(['$httpProvider',
+			function($httpProvider) {
+
+				$httpProvider.defaults.useXDomain = true;
+				delete $httpProvider.defaults.headers.common['X-Requested-With'];
+			}]);
+			
+			
+
+			// my function to populate the product details
+
+			function AngularController($scope, $http) {
+
+				
+				$scope.searchItem = null;
+				$scope.addshow = true;
+				$scope.addedshow = false;
+				
+				$scope.listOfProducts = null;
+
+				$scope.loadproductdetails = function() {
+
+					// get search results
+					$http.jsonp('http://api.zappos.com/Product/'+pid+'?callback=JSON_CALLBACK&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78&includes=["styles","description"]').success(function(data) {
+						var txt = data;
+						//var obj = eval(txt);
+						var obj = txt.product;
+						var jsobj = [];
+						for(var i=0;i<obj.length;i++) {
+							var style = obj[i].styles;
+							//for (var j=0; j<style.length;j++) {
+								var new_obj = {"pid":obj[i].productId, "name":obj[i].productName, "image":obj[i].defaultImageUrl,"price":style[0].price, "description":obj[i].description,};
+								$scope.description = obj[i].description;
+								jsobj.push(new_obj);
+							//}
+						}
+
+						$scope.listOfProducts = jsobj;
+						// alert($scope.listOfProducts);
+					}).error(function(data, status, headers, config) {
+						$scope.errorMessage = "PID=" + pid;
+						//$scope.errorMessage = "No product matching this search found, error # " + status;
+
+						alert($scope.errorMessage);
+					});
+
+				};
+				
+				$scope.addtocart2 = function(pid) {
+					if(typeof(Storage) !== "undefined") {
+						$scope.addshow = false;
+						$scope.addedshow = true;
+						var cartjson = [];
+						var cartnum = 0;
+						if (sessionStorage.getItem("cartnum") > 0) {;
+							cartnum = sessionStorage.getItem("cartnum");
+						}
+						cartnum++;
+						sessionStorage.setItem("cartnum",cartnum);
+						if (sessionStorage.getItem("cartdb") != null) {
+							cartjson = JSON.parse(sessionStorage.getItem("cartdb"));
+						}
+						cartjson.push({"id":pid});
+						sessionStorage.setItem("cartdb", JSON.stringify(cartjson))
+						$scope.errorMessage = "--PID="+pid;
+						$scope.errorMessage += "cartnum set to="+sessionStorage.getItem("cartnum");
+						for (var i=0;i<cartjson.length; i++) {
+							$scope.errorMessage += "--ProductID="+cartjson[i].id;
+						}
+						//$scope.errorMessage = "Product added to cart successfully!";
+						//alert($scope.errorMessage);
+						//window.location = 'products.html?' + sessionStorage.productid;
+					}
+					else {
+						$scope.errorMessage = "No Local Storage";
+						alert($scope.errorMessage);
+					}
+				};
+			}
+			
+
+		</script>
+	</head>
+	<body ng-app="myApp" ng-controller="AngularController" id = "AngularController" ng-model="searchItem" ng-init="loadproductdetails()">
+	
+	<div data-role="page">
+	<div id="cbp-pgcontainer">
+
+	<li ng-repeat='product in listOfProducts'>
+	<table>
+		<tr>
+		<td>
+			<img class="productpg" src={{product.image}} height="50%" width="50%"></img>
+		</td>
+		<td>
+		<font size="6">{{product.name}}<font><font size="3"><br>by Zappos</font><br>
+			<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
+		<font size="4"><br>Price: {{product.price}}<br></font>
+		<button ng-show="addshow" ng-click="addtocart2(product.pid)" style="width: 80px;
+    height:25px;background: #f4f4f4;background: -webkit-linear-gradient(top, #f4f4f4 1%, #ededed 100%);">Add to cart</button>
+		<font size="4" color="green" ng-show="addedshow">Added to cart!</font>
+		</td>
+		</tr>
+	</table>
+	<div max-width=50% style="margin-left:5%">
+	<font size="4"><b>
+	Description:</b></font><font size="3">
+	<div max-width=50% style="margin-left:5%">
+		<br>* Please note, the color and interior lining may differ from the color shown in the photo.
+		<br>* Made in the U.S.A. and Imported.
+		<br>* Product measurements were taken using size MD. Please note that measurements may vary by size.
+		<br>* Returns accepted for 30 days from the ship date.
+	</font>
+	</div>
+	</div>
+	</li>
+	</div>
+	</div>
+	<script src="js/cbpShop.min.js"></script>
+		<script>
+			var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
+		</script>
+</body>

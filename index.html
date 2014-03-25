@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" ng-app="myApp">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Savanna|HCI</title>
+		<meta name="description" content="Human computer interaction" />
+		<meta name="keywords" content="HCI, Application, Shoes, Clothing" />
+		<meta name="author" content="Sarim" />
+		<link rel="shortcut icon" href="../favicon.ico">
+		<!--
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+		<link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+		-->
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<link rel="stylesheet" type="text/css" href="css/component.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css' />
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+		<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.4.0.js"></script>
+
+		<!--<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+		<script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
+		<script src="js/modernizr.custom.js"></script>
+		<script type="text/javascript" src="tinybox.js"></script>
+		<noscript>
+			<link rel="stylesheet" type="text/css" href="css/noJS.css" />
+		</noscript>
+
+		<!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
+		<script>
+			var query = window.location.search;
+			// Skip the leading ?, which should always be there,
+			// but be careful anyway
+			var data = null;
+			var searchterm = null;
+			if (query.substring(0, 1) == '?') {
+				query = query.substring(1);
+				data = query.split(',');
+				searchterm = data[0];
+			}
+
+			var myApp = angular.module('myApp', []);
+			myApp.config(['$httpProvider',
+			function($httpProvider) {
+
+				$httpProvider.defaults.useXDomain = true;
+				delete $httpProvider.defaults.headers.common['X-Requested-With'];
+			}]);
+
+			// my function to populate the product details
+
+			//angular.js
+
+			function AngularController($scope, $http) {
+				$scope.searchItem = searchterm;
+				$scope.listOfProducts = null;
+				$scope.searchbox1 = false;
+				$scope.searchbox2 = true;
+				$scope.autocompletelist = null;
+				$scope.extrafilter = null;
+
+				$scope.loadProducts = function() {
+					$scope.searchbox1 = true;
+					$scope.searchbox2 = false;
+					var mysearchtext = $scope.searchItem;
+					if ($scope.extrafilter && $scope.extrafilter != "unisex") {
+						mysearchtext = mysearchtext + " " + $scope.extrafilter;
+					}
+					$http.jsonp('http://api.zappos.com/Search/term/' + mysearchtext + '?callback=JSON_CALLBACK&includes=["categoryFacet"]&limit=1000&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78').success(function(data) {
+						var txt = data;
+						var listP = txt.results;
+						var jsobj = [];
+						var x = 1;
+
+						//categorizing the product
+						for (var i = 0; i < listP.length; i++) {
+							//if (listP[i].categoryFacet != 'Swimwear') {
+							var isexists = 0;
+							var catobj;
+							for (var j = 0; j < jsobj.length; j++) {
+								if (jsobj[j].category == listP[i].categoryFacet) {
+									isexists = 1;
+									jsobj[j].count++;
+								}
+							}
+							if (isexists == 0) {
+								var new_obj = {
+									"category" : listP[i].categoryFacet,
+									"image" : listP[i].thumbnailImageUrl,
+									"count" : "1",
+									"nextaction" : "prodlist",
+								};
+								jsobj.push(new_obj);
+							}
+							//}
+						}
+
+						//sorting the products based on count
+						for (var i = 0; i < jsobj.length; i++) {
+							for (var j = 0; j < jsobj.length; j++) {
+								if (jsobj[i].count > jsobj[j].count) {
+									var temp = jsobj[i];
+									jsobj[i] = jsobj[j];
+									jsobj[j] = temp;
+								}
+							}
+						}
+
+						$scope.listOfProducts = jsobj;
+						console.log($scope.listOfProducts);
+					}).error(function(data, status, headers, config) {
+						$scope.errorMessage = "No product matching this search found, error # " + status;
+						$scope.listOfProducts = [];
+						//alert($scope.errorMessage);
+					});
+				};
+
+				//watch for change in ng-model=searchItem, and change ng-model=selected
+
+				$scope.$watch('searchItem', function(v) {
+					$scope.selected = v;
+				});
+
+				$scope.gotoproduct = function(categoryname) {
+					var getarg = $scope.searchItem;
+					if ($scope.extrafilter != null) {
+						getarg = getarg + "%20" + $scope.extrafilter;
+					}
+					window.location = 'products.html?' + getarg + ',' + categoryname;
+				};
+
+				$scope.showcart = function() {
+					if (sessionStorage.getItem("cartnum") > 0) {
+						TINY.box.show({
+							iframe : 'cart.html',
+							boxid : 'frameless',
+							width : 750,
+							height : 450,
+							fixed : true,
+							maskid : 'blackmask',
+							maskopacity : 40,
+							closejs : function() {
+								closeJS()
+							}
+						});
+					} else {
+						$scope.errorMessage = "Your cart is empty!";
+						$scope.errorMessage += sessionStorage.getItem("cartnum");
+						alert($scope.errorMessage);
+					}
+				};
+				$scope.showaccount = function() {
+					TINY.box.show({
+						iframe : 'account.html',
+						boxid : 'frameless',
+						width : 500,
+						height : 450,
+						fixed : true,
+						maskid : 'blackmask',
+						maskopacity : 40,
+						closejs : function() {
+							closeJS()
+						}
+					});
+				};
+				
+				$scope.initialise = function(categoryname) {
+					$scope.dealscount = " "+20+"\+ ";
+					if (sessionStorage.getItem("dealscount") > 0) {;
+						$scope.dealscount = "("+sessionStorage.getItem("dealscount")+")";
+					}
+					else if (sessionStorage.getItem("dealscount") < 0) {
+						$scope.dealscount = null;
+					}
+					if ($scope.searchItem != null) {
+						$scope.loadProducts();
+					}
+					//sessionStorage.setItem("dealscount",dealscount);
+				};
+				$scope.showdeals = function(categoryname) {
+					$scope.dealscount = "";
+					sessionStorage.setItem("dealscount",-1);
+					window.location = 'deals.html';
+				};
+			}
+		</script>
+
+	</head>
+<body ng-controller="AngularController"  ng-model="searchItem" ng-init="initialise()">
+
+<div width=100% height="100px" style="background-color:lightgrey;position:fixed;z-index:99999;">
+		<table width="100%"><tr><td width="80%" style="padding-right: 10px;">
+					<a href="index.html"><font size="10">Savanna</font></a></center>
+					<input style="margin-left: 10%;" id="searchbox" ng-show="searchbox1" autofocus="autofocus" ng-model="searchItem" ng-change="loadProducts()" placeholder="WHAT AM I HERE FOR?" />
+				</td><td style="margin-right: 10px;">
+					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="" ng-click="showdeals()">  Deals<span id="notification">{{dealscount}}</span>  |</a><a href="" ng-click="showcart()">  Cart </a></pre></font>
+				</td></tr>
+			</table>
+</div>
+<pre ng-show="searchbox2"><br><br><br><br><br><br>
+<br><center><br><br><br><br>
+Start your search...
+
+<input class="searchbox" autofocus="autofocus" ng-show="searchbox2" ng-model="searchItem" ng-change="loadProducts()" focus-on="searchItem" placeholder="WHAT AM I HERE FOR?" /></center>
+</pre>
+						
+
+<br><br><br><br><br>
+
+
+
+	<div data-role="page">
+		<div class="container" >
+		<div id="cbp-pgcontainer" class="cbp-pgcontainer">
+			<!--<p>list of product categories:</p>-->
+			<ul class="cbp-pggrid">
+				<li ng-repeat='product in listOfProducts' ng-click="gotoproduct(product.category)">
+					<div class="cbp-pgcontent">
+						<div class="cbp-pgitem">
+							<div class="cbp-pgitem-flip">
+								<img src={{product.image}} /><!--add image here-->
+							</div>
+						</div><!-- /cbp-pgitem -->
+					</div><!-- cbp-pgcontent -->
+					<div class="cbp-pginfo">
+						<h3>{{product.category}}</h3><!--product name-->
+						<!--<h3>{{product.brandName}}</h3><!--brandname->-->
+						<span class="cbp-pgprice">{{product.count}}<font size="2"> item(s)</font>
+							{{product.categoryFacet}}</span><!--product price-->
+					</div>
+				</li>
+
+			</ul><!-- /cbp-pggrid -->
+		</div><!-- /cbp-pgcontainer -->
+
+	</div><!-- /content -->
+
+	</div><!---page ends-->
+
+	<script src="js/cbpShop.min.js"></script>
+	<script>
+		var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
+	</script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script type="text/javascript">
+		function DropDown(el) {
+			this.dd = el;
+			this.placeholder = this.dd.children('span');
+			this.opts = this.dd.find('ul.dropdown > li');
+			this.val = '';
+			this.index = -1;
+			this.initEvents();
+		}
+
+
+		DropDown.prototype = {
+			initEvents : function() {
+				var obj = this;
+
+				obj.dd.on('click', function(event) {
+					$(this).toggleClass('active');
+					return false;
+				});
+
+				obj.opts.on('click', function() {
+					var opt = $(this);
+					obj.val = opt.text();
+					obj.index = opt.index();
+					obj.placeholder.text(obj.val);
+				});
+			},
+			getValue : function() {
+				return this.val;
+			},
+			getIndex : function() {
+				return this.index;
+			}
+		}
+
+		$(function() {
+
+			var dd = new DropDown($('#dd'));
+
+			$(document).click(function() {
+				// all dropdowns
+				$('.wrapper-dropdown-3').removeClass('active');
+			});
+
+		});
+
+	</script>
+</body>
+</html>
