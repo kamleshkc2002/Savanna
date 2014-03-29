@@ -206,6 +206,26 @@
 						alert($scope.errorMessage);
 					}
 				};
+				$scope.showcheckout = function() {
+					if (sessionStorage.getItem("cartnum") > 0) {
+						TINY.box.show({
+							iframe : 'checkout.html',
+							boxid : 'frameless',
+							width : 1000,
+							height : 450,
+							fixed : true,
+							maskid : 'blackmask',
+							maskopacity : 40,
+							closejs : function() {
+								closeJS()
+							}
+						});
+					} else {
+						$scope.errorMessage = "Your cart is empty!";
+						//$scope.errorMessage += sessionStorage.getItem("cartnum");
+						alert($scope.errorMessage);
+					}
+				};								
 				$scope.showaccount = function() {
 					TINY.box.show({
 						iframe : 'account.html',
@@ -247,7 +267,7 @@
 					<a href="index.html"><font size="10"> Savanna</font></a></center>
 					<input style="margin-left: 10%;" id="searchbox" ng-model="searchItem" ng-change="loadCategory()" placeholder="WHAT AM I HERE FOR?" />
 				</td><td style="margin-right: 10px;">
-					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="" ng-click="showdeals()">  Deals<span id="notification">{{dealscount}}</span>  |</a><a href="" ng-click="showcart()">  Cart  </a></pre></font>
+					<font size=4><pre><a href="" ng-click="showaccount()">My Account  |</a><a href="" ng-click="showdeals()">  Deals<span id="notification">{{dealscount}}</span>  |</a><a href="" ng-click="showcart()">  Cart  |</a><a href="" ng-click="showcheckout()">  Checkout</a></pre></font>
 				</td></tr>
 			</table>
 		</div>
