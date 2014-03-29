@@ -67,7 +67,26 @@
           $scope.listOfProducts = jsobj;
           
         };
-        
+        $scope.showcheckout = function() {
+          if (sessionStorage.getItem("cartnum") > 0) {
+            TINY.box.show({
+              iframe : 'checkout.html',
+              boxid : 'frameless',
+              width : 1000,
+              height : 450,
+              fixed : true,
+              maskid : 'blackmask',
+              maskopacity : 40,
+              closejs : function() {
+                closeJS()
+              }
+            });
+          } else {
+            $scope.errorMessage = "Your cart is empty!";
+            //$scope.errorMessage += sessionStorage.getItem("cartnum");
+            alert($scope.errorMessage);
+          }
+        };                
         $scope.removeitem = function(delpid) {
           var cartnum = 0;
           if (sessionStorage.getItem("cartnum") > 0) {;
@@ -93,6 +112,7 @@
   <body ng-controller="AngularController" ng-init="loadproductdetails()">
   <div width=100% style="background-color:lightgrey;">
   <br><font size="4"><b>Your Cart!</b></font><br>
+	<center><font size=4><pre><a href="" ng-click="showcheckout()">Checkout!</a></pre></font></center>
   </div>
   <br>
   <div data-role="page">
