@@ -1,134 +1,134 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js" ng-app="myApp">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Savanna | HCI Project</title>
-		<meta name="description" content="Zappos Application for Discount Notification" />
-		<meta name="keywords" content="Zappos, Application, Shoes, Clothing" />
-		<meta name="author" content="Sarim" />
-		<link rel="shortcut icon" href="../favicon.ico">
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-sanitize.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-		<script src="js/modernizr.custom.js"></script>
-		<script type="text/javascript" src="tinybox.js"></script>
-		<link rel="stylesheet" type="text/css" href="css/default.css" />
-		<link rel="stylesheet" type="text/css" href="css/component.css" />
-		<link rel="stylesheet" type="text/css" href="css/style.css" />
-		<!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
-		
-		<script>
-			var myApp = angular.module('myApp', []);
-			myApp.config(['$httpProvider',
-			function($httpProvider) {
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savanna | HCI Project</title>
+    <meta name="description" content="Zappos Application for Discount Notification" />
+    <meta name="keywords" content="Zappos, Application, Shoes, Clothing" />
+    <meta name="author" content="Sarim" />
+    <link rel="shortcut icon" href="../favicon.ico">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-sanitize.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+    <script src="js/modernizr.custom.js"></script>
+    <script type="text/javascript" src="tinybox.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/default.css" />
+    <link rel="stylesheet" type="text/css" href="css/component.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <!-- Make sure my AngularJS calls our API as a "GET", rather than as an "OPTION"-->
+    
+    <script>
+      var myApp = angular.module('myApp', []);
+      myApp.config(['$httpProvider',
+      function($httpProvider) {
 
-				$httpProvider.defaults.useXDomain = true;
-				delete $httpProvider.defaults.headers.common['X-Requested-With'];
-			}]);
+        $httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+      }]);
 
-			// my function to populate the product details
+      // my function to populate the product details
 
-			function AngularController($scope, $http) {
-				$scope.searchItem = null;
-				$scope.totalcost = 0;
-				$scope.numofitems = 0;
-				$scope.listOfProducts = null;
+      function AngularController($scope, $http) {
+        $scope.searchItem = null;
+        $scope.totalcost = 0;
+        $scope.numofitems = 0;
+        $scope.listOfProducts = null;
 
-				$scope.loadproductdetails = function() {
-					$scope.numofitems = 0;
-					$scope.totalcost = 0.00;
-					var jsobj = []; //temp var to store api's result
-					var cartjson = []; //all products in cart will be populated here.
-					cartjson = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
-					// get product detials for each productid in cartjson
-					for(var k = 0; k<cartjson.length; k++) {
-						$http.jsonp('http://api.zappos.com/Product/'+cartjson[k].id+'?callback=JSON_CALLBACK&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78&includes=["styles","description"]').success(function(data) {
-							var txt = data;
-							var obj = txt.product;
-							//add the returned details in the necessary form
-							for(var i=0;i<obj.length;i++) {
-								var style = obj[i].styles;
-									var new_obj = {"pid":obj[i].productId, "name":obj[i].productName, "image":obj[i].defaultImageUrl,"price":style[0].price};
-									var price = parseFloat(style[0].price.replace(/\$/, ""));
-									$scope.totalcost = parseFloat($scope.totalcost)+parseFloat(price);
-									$scope.numofitems++;
-									$scope.description = obj[i].description;
-									jsobj.push(new_obj);
-							}
-							//populate the list of products to be displayed
-							
-						}).error(function(data, status, headers, config) {
-							$scope.errorMessage = "PID=" + pid;
-							//$scope.errorMessage = "No product matching this search found, error # " + status;
-							alert($scope.errorMessage);
-						});
-					}
-					$scope.listOfProducts = jsobj;
-					
-				};
-				
-				$scope.removeitem = function(delpid) {
-					var cartnum = 0;
-					if (sessionStorage.getItem("cartnum") > 0) {;
-						cartnum = sessionStorage.getItem("cartnum");
-					}
-					cartnum--;
-					sessionStorage.setItem("cartnum",cartnum);
-					
-					var cartpids = []; //all products in cart will be populated here.
-					var newcartjson = [];
-					cartpids = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
-					for(var k = 0; k<cartpids.length; k++) {
-						if (cartpids[k].id != delpid) {
-							newcartjson.push(cartpids[k]);
-						}
-					}
-					sessionStorage.setItem("cartdb", JSON.stringify(newcartjson))
-					$scope.loadproductdetails();
-				};
-			}
-		</script>
-	</head>
-	<body ng-controller="AngularController" ng-init="loadproductdetails()">
-	<div width=100% style="background-color:lightgrey;">
-	<br><font size="4"><b>Your Cart!</b></font><br>
-	</div>
-	<br>
-	<div data-role="page">
-	<div class="container">
-	<div id="cbp-pgcontainer" class="cbp-pgcontainer">
-	<center>
-	<font size="4"><b>
-	<pre>Number of Items: {{numofitems}}       </pre>
-	<pre>Total Cost: ${{totalcost}}       </pre>
-	</b>
-	</font>
-	</center>
-	<li ng-repeat='product in listOfProducts'>
-	<table>
-		<tr height="40%">
-		<td width="15%" height="20%"><img width="100%" max-height="100%" src={{product.image}}></img>
-		</td>
-		<td width="50%" height="20%">
-		<font size="4">{{product.name}}<font><font size="3"><br>by Zappos</font><br>
-		<img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
-		</td>
-		<td>
-		<a href="" ng-click="removeitem(product.pid)"> delete item</a>
-		</td>
-		<td>
-		<font size="5%"><br>Price: {{product.price}}<br><br></font>
-		</td>
-		</tr>
-	</table>
-	</li>
-	<script src="js/cbpShop.min.js"></script>
-		<script>
-			var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
-		</script>
-	</ul>
-	</div>
-	</div>
-	</div>
+        $scope.loadproductdetails = function() {
+          $scope.numofitems = 0;
+          $scope.totalcost = 0.00;
+          var jsobj = []; //temp var to store api's result
+          var cartjson = []; //all products in cart will be populated here.
+          cartjson = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
+          // get product detials for each productid in cartjson
+          for(var k = 0; k<cartjson.length; k++) {
+            $http.jsonp('http://api.zappos.com/Product/'+cartjson[k].id+'?callback=JSON_CALLBACK&key=12c3302e49b9b40ab8a222d7cf79a69ad11ffd78&includes=["styles","description"]').success(function(data) {
+              var txt = data;
+              var obj = txt.product;
+              //add the returned details in the necessary form
+              for(var i=0;i<obj.length;i++) {
+                var style = obj[i].styles;
+                  var new_obj = {"pid":obj[i].productId, "name":obj[i].productName, "image":obj[i].defaultImageUrl,"price":style[0].price};
+                  var price = parseFloat(style[0].price.replace(/\$/, ""));
+                  $scope.totalcost = parseFloat($scope.totalcost)+parseFloat(price);
+                  $scope.numofitems++;
+                  $scope.description = obj[i].description;
+                  jsobj.push(new_obj);
+              }
+              //populate the list of products to be displayed
+              
+            }).error(function(data, status, headers, config) {
+              $scope.errorMessage = "PID=" + pid;
+              //$scope.errorMessage = "No product matching this search found, error # " + status;
+              alert($scope.errorMessage);
+            });
+          }
+          $scope.listOfProducts = jsobj;
+          
+        };
+        
+        $scope.removeitem = function(delpid) {
+          var cartnum = 0;
+          if (sessionStorage.getItem("cartnum") > 0) {;
+            cartnum = sessionStorage.getItem("cartnum");
+          }
+          cartnum--;
+          sessionStorage.setItem("cartnum",cartnum);
+          
+          var cartpids = []; //all products in cart will be populated here.
+          var newcartjson = [];
+          cartpids = JSON.parse(sessionStorage.getItem("cartdb")); //getting the cartdata from the session storage
+          for(var k = 0; k<cartpids.length; k++) {
+            if (cartpids[k].id != delpid) {
+              newcartjson.push(cartpids[k]);
+            }
+          }
+          sessionStorage.setItem("cartdb", JSON.stringify(newcartjson))
+          $scope.loadproductdetails();
+        };
+      }
+    </script>
+  </head>
+  <body ng-controller="AngularController" ng-init="loadproductdetails()">
+  <div width=100% style="background-color:lightgrey;">
+  <br><font size="4"><b>Your Cart!</b></font><br>
+  </div>
+  <br>
+  <div data-role="page">
+  <div class="container">
+  <div id="cbp-pgcontainer" class="cbp-pgcontainer">
+  <center>
+  <font size="4"><b>
+  <pre>Number of Items: {{numofitems}}       </pre>
+  <pre>Total Cost: ${{totalcost}}       </pre>
+  </b>
+  </font>
+  </center>
+  <li ng-repeat='product in listOfProducts'>
+  <table>
+    <tr height="40%">
+    <td width="15%" height="20%"><img width="100%" max-height="100%" src={{product.image}}></img>
+    </td>
+    <td width="50%" height="20%">
+    <font size="4">{{product.name}}<font><font size="3"><br>by Zappos</font><br>
+    <img src="images/4stars.jpg" height="30px" width="120px"><font size="2"><u>529 reviews</u></font>
+    </td>
+    <td>
+    <a href="" ng-click="removeitem(product.pid)"> delete item</a>
+    </td>
+    <td>
+    <font size="5%"><br>Price: {{product.price}}<br><br></font>
+    </td>
+    </tr>
+  </table>
+  </li>
+  <script src="js/cbpShop.min.js"></script>
+    <script>
+      var shop = new cbpShop(document.getElementById('cbp-pgcontainer'));
+    </script>
+  </ul>
+  </div>
+  </div>
+  </div>
 </body>
